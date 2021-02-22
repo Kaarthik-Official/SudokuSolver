@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sudoku Solver</title>
+    <style>
+        input[type="number"] {
+            border: none;
+            outline: none;
+        }
+
+        input[type="button"] {
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            background-color: blueviolet;
+            outline: none;
+        }
+
+        table {
+            margin: 1em auto;
+            border-collapse: collapse;
+        }
+
+        td {
+            height: 30px;
+            width: 30px;
+            border: 1px solid;
+            text-align: center;
+        }
+
+        td:first-child {
+            border-left: solid;
+        }
+
+        td:nth-child(3n) {
+            border-right: solid;
+        }
+
+        tr:first-child {
+            border-top: solid;
+        }
+
+        tr:nth-child(3n) td {
+            border-bottom: solid;
+        }
+    </style>
+    <script>
+        //display after solving
+        function disp() {
+            for (var i = 0; i < 9; i++) {
+                for (var j = 0; j < 9; j++) {
+                    tmp = i.toString() + j.toString();
+                    document.getElementById(tmp).value = board[i][j];
+                }
+            }
+        }
+        function createTable() {
+            var x = document.getElementById("Sudoku");
+            for (var i = 0; i < 9; i++) {
+                var rows = document.createElement("tr");
+                for (var j = 0; j < 9; j++) {
+                    var cols = document.createElement("td");
+                    var fill = document.createElement("input");
+                    fill.setAttribute("type", "number");
+                    fill.setAttribute("min", "1");
+                    fill.setAttribute("max", "9");
+                    fill.setAttribute("value", "");
+                    fill.setAttribute("id", i.toString() + j.toString());
+                    cols.appendChild(fill);
+                    rows.appendChild(cols);
+
+                }
+                x.appendChild(rows);
+            }
+        }
+        var board = [];
+        //check for empty spaces
+        function findEmpty() {
+            let cell = [];
+            let flag = true;
+            for (var i = 0; i < 9; i++) {
+                for (var j = 0; j < 9; j++) {
+                    if (board[i][j] == 0) {
+                        flag = false;
+                        cell.push(i);
+                        cell.push(j);
+                        return cell;
+                    }
+                }
+            }
+            if (flag) {
+                cell.push(-1);
+                cell.push(-1);
+                return cell;
+            }
+
+        }
+        //check whether the sudodku is valid 
+        function isValid(i, j, e) {
+            rowOk = true;
+            for (var x = 0; x < 9; x++) {
+                if (board[i][x] == e) {
+                    rowOk = false;
+                    break;
+                }
+            }
+            if (rowOk) {
+                colOk = true;
+                for (var x = 0; x < 9; x++) {
+                    if (board[x][j] == e) {
+                        colOk = false;
+                        break;
+                    }
+                }
+                if (colOk) {
+                    //check the box
+                    secTopX = 3 * Math.floor(i / 3);
+                    secTopY = 3 * Math.floor(j / 3);
+                    for (var x = secTopX; x < secTopX + 3; x++) {
+                        for (var y = secTopY; y < secTopY + 3; y++) {
+                            if (board[x][y] == e) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        //Solving recursively
+        function solveSudoku(i = 0, j = 0) {
+            indexes = findEmpty();
+            i = indexes[0];
+            j = indexes[1];
+            if (i == -1) {
+                return true;
+            }
+            for (var e = 1; e < 10; e++) {
+                if (isValid(i, j, e)) {
+                    board[i][j] = e;
+                    if (solveSudoku(i, j)) {
+                        return true;
+                    }
+                    else {
+                        board[i][j] = 0;
+                    }
+                }
+            }
+            return false;
+        }
+        //Click intialize board
+        function Solve() {
+            board = [];
+            var temp = [];
+            var y;
+            var getId;
+            for (var i = 0; i < 9; i++) {
+                temp = [];
+                for (var j = 0; j < 9; j++) {
+                    getId = i.toString() + j.toString();
+                    y = document.getElementById(getId).value;
+                    if (y == "") {
+                        temp.push(0);
+                    }
+                    else {
+                        temp.push(parseInt(y));
+                    }
+                }
+                board.push(temp);
+            }
+            solveSudoku();
+            disp();
+
+        }
+    </script>
+</head>
+
+<body onload="createTable()">
+    <nav>
+        <h1>Sudoku Solver</h1>
+    </nav>
+    <table id="Sudoku" border=1>
+
+    </table>
+    <br>
+    <input type="button" id="Solve" onclick="Solve()" value="Solve">
+
+</body>
+
+</html>
